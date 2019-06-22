@@ -57,7 +57,7 @@ class PegSolitare {
 			for (let j = 0; j < this.numCols; j++) {
 				//make an image
 				let boardSquare = new Image();
-				boardSquare.src = '/img/empty.png';
+				boardSquare.src = '..../img/empty.png';
 				boardSquare.className = "square"
 				boardSquare.setAttribute("row", i)
 				boardSquare.setAttribute("col", j)
@@ -106,7 +106,7 @@ class PegSolitare {
 
 		let img = this.board[row][col];
 		img.setAttribute("invalid", true);
-		img.src = "/img/empty-invalid.png";
+		img.src = "../img/empty-invalid.png";
 	}
 
 	/**
@@ -160,7 +160,7 @@ class PegSolitare {
 				return;
 
 			this.selectedPeg = clickedImg;
-			clickedImg.src = "/img/peg-selected.png";
+			clickedImg.src = "../img/peg-selected.png";
 
 			this.toggleHighlightMoves(row, col, true);
 		}
@@ -169,7 +169,7 @@ class PegSolitare {
 			//same peg, deselect
 			if (this.selectedPeg == clickedImg) {
 				this.selectedPeg = null;
-				clickedImg.src = "/img/peg.png";
+				clickedImg.src = "../img/peg.png";
 
 				this.toggleHighlightMoves(row, col, false);
 				return;
@@ -177,11 +177,11 @@ class PegSolitare {
 
 			//new peg selected. switch selected.
 			if (hasPeg == "true") {
-				this.selectedPeg.src = "/img/peg.png";
+				this.selectedPeg.src = "../img/peg.png";
 				this.toggleHighlightMoves(this.selectedPeg.getAttribute("row"), this.selectedPeg.getAttribute("col"), false);
 
 				this.selectedPeg = clickedImg;
-				this.selectedPeg.src = "/img/peg-selected.png";
+				this.selectedPeg.src = "../img/peg-selected.png";
 				this.toggleHighlightMoves(this.selectedPeg.getAttribute("row"), this.selectedPeg.getAttribute("col"), true);
 			}
 			//empty space. try jumping
@@ -224,14 +224,14 @@ class PegSolitare {
 					let targetSquare = this.board[jumpRow][jumpCol];
 					if (targetSquare.getAttribute("has-peg") == "false") {
 						if (targetSquare.getAttribute("invalid") == "false") {
-							targetSquare.src = "/img/empty.png";
+							targetSquare.src = "../img/empty.png";
 
 							if (doHighlight) {
 								this.validMoves.push({
 									row: jumpRow,
 									col: jumpCol
 								})
-								targetSquare.src = "/img/empty-valid.png";
+								targetSquare.src = "../img/empty-valid.png";
 							}
 						}
 					}
@@ -328,7 +328,7 @@ class PegSolitare {
 		col = parseInt(col);
 
 		let img = this.board[row][col];
-		img.src = "/img/peg.png";
+		img.src = "../img/peg.png";
 		img.setAttribute("has-peg", true);
 	}
 
@@ -337,7 +337,7 @@ class PegSolitare {
 		col = parseInt(col);
 
 		let img = this.board[row][col];
-		img.src = "/img/empty.png";
+		img.src = "../img/empty.png";
 		img.setAttribute("has-peg", false);
 	}
 
