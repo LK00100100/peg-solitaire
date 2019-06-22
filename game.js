@@ -23,7 +23,17 @@ class PegSolitare {
 		//calculated by highlightMoves;
 		this.validMoves = [];
 
+		document.getElementById("reset-btn").onclick = this.resetGame.bind(this);
+
 		this.makeEmptyBoard();
+
+		this.resetGame();
+	}
+
+	resetGame(){
+		this.selectedPeg = null;
+		this.validMoves = [];
+
 		this.placePegs();
 		this.isGameOver();
 	}
@@ -274,7 +284,7 @@ class PegSolitare {
 		document.getElementById("possible-moves").innerHTML = "possibleMoves: " + totalPossibleMoves;
 
 		if (totalPossibleMoves == 0) {
-			document.getElementById("possible-moves").innerHTML = "you";
+			document.getElementById("possible-moves").innerHTML = "No more moves, you lose!";
 		}
 	}
 
@@ -286,6 +296,9 @@ class PegSolitare {
 	countMoves(row, col) {
 		row = parseInt(row);
 		col = parseInt(col);
+
+		if(this.board[row][col].getAttribute("has-peg") == "false")
+			return 0;
 
 		let moves = 0;
 
