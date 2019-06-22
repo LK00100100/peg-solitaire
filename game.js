@@ -1,4 +1,5 @@
 //Note: i could make a peg object...
+//TODO: pass in json instead of hardwiring board
 
 window.onload = function () {
 	new PegSolitare();
@@ -7,8 +8,8 @@ window.onload = function () {
 class PegSolitare {
 
 	constructor() {
-		this.numRows = 5;
-		this.numCols = 5;
+		this.numRows = 9;
+		this.numCols = 9;
 
 		this.gameDiv = document.getElementById("game");
 
@@ -26,7 +27,6 @@ class PegSolitare {
 		document.getElementById("reset-btn").onclick = this.resetGame.bind(this);
 
 		this.initBoard();
-
 		this.resetGame();
 	}
 
@@ -37,6 +37,7 @@ class PegSolitare {
 		this.clearBoard();
 		this.placePegs();
 		this.isGameOver();
+		this.initInvalidBoard();
 	}
 
 	initBoard() {
@@ -68,6 +69,31 @@ class PegSolitare {
 		}
 	}
 
+	initInvalidBoard() {
+		//fill out a square
+		let squaresTopLeftCorners = [[0, 0], [0, 6], [6, 0], [6, 6]];
+
+		for (let corner of squaresTopLeftCorners) {
+			let row = corner[0];
+			let col = corner[1];
+
+			for (let i = 0; i < 3; i++) {
+				for (let j = 0; j < 3; j++) {
+					this.markInvalid(row + i, col + j);
+				}
+			}
+		}
+	}
+
+	markInvalid(row, col) {
+		row = parseInt(row);
+		col = parseInt(col);
+
+		let img = this.board[row][col];
+		img.setAttribute("invalid", true);
+		img.src = "empty-invalid.png";
+	}
+
 	clearBoard() {
 		let rows = document.getElementsByClassName("square");
 
@@ -78,20 +104,23 @@ class PegSolitare {
 		}
 	}
 
+	//TODO: read from json instead or something
 	placePegs() {
-		let rows = document.getElementsByClassName("square");
-
-		for (let square of rows) {
-			let row = square.getAttribute("row");
-			let col = square.getAttribute("col");
-
-			//half a square (down the diagonal triangle)
-			if (col < (row + 1)) {
-				this.placePeg(row, col)
+		//horizontal cross
+		for (let row = 3; row <= 5; row++) {
+			for (let col = 0; col < this.board[0].length; col++) {
+				this.placePeg(row, col);
 			}
 		}
 
-		this.removePeg(4, 0);	//TODO: update later
+		//vertical cross
+		for (let row = 0; row < this.board.length; row++) {
+			for (let col = 3; col <= 5; col++) {
+				this.placePeg(row, col);
+			}
+		}
+
+		this.removePeg(4, 4);
 	}
 
 	/**
