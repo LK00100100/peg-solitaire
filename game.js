@@ -21,6 +21,10 @@ class PegSolitare {
 
 		//[row, col]
 		this.direction = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+		//a list of {row, col} that are jumpable.
+		//calculated by highlightMoves;
+		this.validMoves = [];
 	}
 
 	makeEmptyBoard() {
@@ -71,52 +75,63 @@ class PegSolitare {
 	 * do stuff when a board square is clicked
 	 * 
 	 * this = PegSolitaire
-	 * @param {*} img 
+	 * @param {*} clickedImg 
 	 * @param {*} x 
 	 * @param {*} y 
 	 */
-	squareClicked(img, x, y) {
+	squareClicked(clickedImg, x, y) {
 		console.log(x + "," + y);
 
-		let hasPeg = img.getAttribute("has-peg");
+		let hasPeg = clickedImg.getAttribute("has-peg");
 
 		if (this.selectedPeg == null) {
 			if (hasPeg == "false")
 				return;
 
-			this.selectedPeg = img;
-			img.src = "peg-selected.png";
+			this.selectedPeg = clickedImg;
+			clickedImg.src = "peg-selected.png";
 
 			this.toggleHighlightMoves(x, y, true);
 		}
 		//has selected peg before
 		else {
 			//same peg, deselect
-			if (this.selectedPeg == img) {
+			if (this.selectedPeg == clickedImg) {
 				this.selectedPeg = null;
-				img.src = "peg.png";
+				clickedImg.src = "peg.png";
 
 				this.toggleHighlightMoves(x, y, false);
 				return;
 			}
 
 			//new peg selected. switch selected.
-			this.selectedPeg.src = "peg.png";
-			this.toggleHighlightMoves(this.selectedPeg.getAttribute("row"), this.selectedPeg.getAttribute("col"), false);
+			if (hasPeg == "true") {
+				this.selectedPeg.src = "peg.png";
+				this.toggleHighlightMoves(this.selectedPeg.getAttribute("row"), this.selectedPeg.getAttribute("col"), false);
 
-			this.selectedPeg = img;
-			this.selectedPeg.src = "peg-selected.png";
-			this.toggleHighlightMoves(this.selectedPeg.getAttribute("row"), this.selectedPeg.getAttribute("col"), true);
+				this.selectedPeg = clickedImg;
+				this.selectedPeg.src = "peg-selected.png";
+				this.toggleHighlightMoves(this.selectedPeg.getAttribute("row"), this.selectedPeg.getAttribute("col"), true);
+			}
+			//empty space. try jumping
+			else {
+				let jumpRow = clickedImg.getAttribute("row");
+				let jumpCol = clickedImg.getAttribute("col");
+				if (this.isValidJump(jumpRow, jumpCol)) {
+					this.jumpToSpace(jumpRow, jumpCol);
+				}
+			}
 		}
 	}
 
 	/**
 	 * highlight or unhighlight valid moves
+	 * also sets validMoves
 	 * @param {*} row the peg to move's row
 	 * @param {*} col the peg to move's col
-	 * @param {*} highlight true if you want highlight.
+	 * @param {*} doHighlight true if you want highlight. false to unhighlight
 	 */
-	toggleHighlightMoves(row, col, highlight) {
+	toggleHighlightMoves(row, col, doHighlight) {
 		row = parseInt(row);
 		col = parseInt(col);
 
@@ -126,7 +141,7 @@ class PegSolitare {
 			let jumpRow = row + (direction[0] * 2);
 			let jumpCol = col + (direction[1] * 2);
 
-			//second peg check
+			//check if the second "to-be-jumped-over" peg exists
 			if (this.isValidCoordinate(secondPegRow, secondPegCol)) {
 				let secondPeg = this.board[secondPegRow][secondPegCol];
 				if (secondPeg.getAttribute("has-peg") == "false") {
@@ -139,22 +154,103 @@ class PegSolitare {
 
 						targetSquare.src = "empty.png";
 
-						if (highlight)
+						if (doHighlight) {
+							this.validMoves.push({
+								row: jumpRow,
+								col: jumpCol
+							})
 							targetSquare.src = "empty-valid.png";
+						}
 					}
 				}
 			}
 		}
+
+		if (doHighlight == false)
+			this.validMoves = [];
 	}
 
-	isValidCoordinate(x, y) {
-		if (x < 0 || y < 0)
+	isValidCoordinate(row, col) {
+		row = parseInt(row);
+		col = parseInt(col);
+
+		if (row < 0 || col < 0)
 			return false;
 
-		if (x >= this.board.length || y >= this.board[0].length)
+		if (row >= this.board.length || col >= this.board[0].length)
 			return false;
 
 		return true;
 	}
 
+	/**
+	 * 
+	 * @param {*} row 
+	 * @param {*} col 
+	 * @returns returns true if you can jump there with the selectedPeg. false otherwise
+	 */
+	isValidJump(row, col) {
+		if (this.selectedPeg == null)
+			return false;
+
+		if (!this.isValidCoordinate(row, col))
+			return false;
+
+		for (let coordinates of this.validMoves) {
+			if (coordinates.row == row && coordinates.col == col) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * jumps with the selectedPeg
+	 * @param {*} targetRow 
+	 * @param {*} targetCol 
+	 */
+	jumpToSpace(targetRow, targetCol) {
+		let currentPegRow = this.selectedPeg.getAttribute("row");
+		let currentPegCol = this.selectedPeg.getAttribute("col");
+
+		//put in new spot
+		this.placePeg(targetRow, targetCol);
+
+		//remove old spot
+		this.removePeg(currentPegRow, currentPegCol);
+		this.toggleHighlightMoves(currentPegRow, currentPegCol, false);
+
+		//second peg "middle"
+		let secondPegRow = (currentPegRow == targetRow) ? currentPegRow : this.getMiddleAmount(currentPegRow, targetRow);
+		let secondPegCol = (currentPegCol == targetCol) ? currentPegCol : this.getMiddleAmount(currentPegCol, targetCol);
+		this.removePeg(secondPegRow, secondPegCol);
+
+		this.selectedPeg = null;
+	}
+
+	getMiddleAmount(a, b) {
+		let max = Math.max(a, b);
+		let min = Math.min(a, b);
+
+		return (max + min) / 2;
+	}
+
+	placePeg(row, col) {
+		row = parseInt(row);
+		col = parseInt(col);
+
+		let img = this.board[row][col];
+		img.src = "peg.png";
+		img.setAttribute("has-peg", true);
+	}
+
+	removePeg(row, col) {
+		row = parseInt(row);
+		col = parseInt(col);
+
+		let img = this.board[row][col];
+		img.src = "empty.png";
+		img.setAttribute("has-peg", false);
+	}
 }
