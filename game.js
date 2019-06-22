@@ -295,8 +295,13 @@ class PegSolitare {
 
 		document.getElementById("possible-moves").innerHTML = "possibleMoves: " + totalPossibleMoves;
 
+		//set victory/loss message
 		if (totalPossibleMoves == 0) {
-			document.getElementById("possible-moves").innerHTML = "No more moves, you lose!";
+			let message = "No more moves, you lose!";
+			if (this.countPieces() == 1)
+				message = "You win!";
+
+			document.getElementById("possible-moves").innerHTML = message;
 		}
 	}
 
@@ -338,6 +343,17 @@ class PegSolitare {
 		}
 
 		return moves;
+	}
 
+	countPieces() {
+		let count = 0;
+		for (let row of this.board) {
+			for (let square of row) {
+				if (square.getAttribute("has-peg") == "true")
+					count++;
+			}
+		}
+
+		return count;
 	}
 }
