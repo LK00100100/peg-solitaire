@@ -10,4 +10,5 @@ Click a piece and hop over another piece horizontally or vertically. The piece t
 one piece remaining.
 
 Wiki [(link)](https://en.wikipedia.org/wiki/Peg_solitaire)
+
 Play here [(link)](https://lk00100100.github.io/peg-solitaire/)
