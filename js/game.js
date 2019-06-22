@@ -39,8 +39,8 @@ class PegSolitare {
 
 		this.clearBoard();
 		this.placePegs();
-		this.isGameOver();
 		this.initInvalidBoard();
+		this.isGameOver();
 	}
 
 	/**
