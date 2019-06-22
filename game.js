@@ -25,7 +25,7 @@ class PegSolitare {
 
 		document.getElementById("reset-btn").onclick = this.resetGame.bind(this);
 
-		this.makeEmptyBoard();
+		this.initBoard();
 
 		this.resetGame();
 	}
@@ -39,7 +39,7 @@ class PegSolitare {
 		this.isGameOver();
 	}
 
-	makeEmptyBoard() {
+	initBoard() {
 		for (let i = 0; i < this.numRows; i++) {
 			let row = document.createElement("div");
 			row.className = "row";
@@ -72,11 +72,11 @@ class PegSolitare {
 		let rows = document.getElementsByClassName("square");
 
 		for (let square of rows) {
-			square.src = 'empty.png';
-			square.setAttribute("has-peg", false);
+			let row = square.getAttribute("row");
+			let col = square.getAttribute("col");
+			this.removePeg(row, col);
 		}
 	}
-
 
 	placePegs() {
 		let rows = document.getElementsByClassName("square");
@@ -87,10 +87,11 @@ class PegSolitare {
 
 			//half a square (down the diagonal triangle)
 			if (col < (row + 1)) {
-				square.src = 'peg.png';
-				square.setAttribute("has-peg", true);
+				this.placePeg(row, col)
 			}
 		}
+
+		this.removePeg(4, 0);	//TODO: update later
 	}
 
 	/**
