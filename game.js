@@ -16,15 +16,16 @@ class PegSolitare {
 
 		this.board = [];
 
-		this.makeEmptyBoard();
-		this.placePegs();
-
 		//[row, col]
 		this.direction = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
 		//a list of {row, col} that are jumpable.
 		//calculated by highlightMoves;
 		this.validMoves = [];
+
+		this.makeEmptyBoard();
+		this.placePegs();
+		this.isGameOver();
 	}
 
 	makeEmptyBoard() {
@@ -76,11 +77,12 @@ class PegSolitare {
 	 * 
 	 * this = PegSolitaire
 	 * @param {*} clickedImg 
-	 * @param {*} x 
-	 * @param {*} y 
+	 * @param {*} row 
+	 * @param {*} col 
 	 */
-	squareClicked(clickedImg, x, y) {
-		console.log(x + "," + y);
+	squareClicked(clickedImg, row, col) {
+		console.log(row + "," + col);
+		console.log("moves: " + this.countMoves(row, col));
 
 		let hasPeg = clickedImg.getAttribute("has-peg");
 
@@ -91,7 +93,7 @@ class PegSolitare {
 			this.selectedPeg = clickedImg;
 			clickedImg.src = "peg-selected.png";
 
-			this.toggleHighlightMoves(x, y, true);
+			this.toggleHighlightMoves(row, col, true);
 		}
 		//has selected peg before
 		else {
@@ -100,7 +102,7 @@ class PegSolitare {
 				this.selectedPeg = null;
 				clickedImg.src = "peg.png";
 
-				this.toggleHighlightMoves(x, y, false);
+				this.toggleHighlightMoves(row, col, false);
 				return;
 			}
 
@@ -148,6 +150,7 @@ class PegSolitare {
 					continue;
 				}
 
+				//check if valid target
 				if (this.isValidCoordinate(jumpRow, jumpCol)) {
 					let targetSquare = this.board[jumpRow][jumpCol];
 					if (targetSquare.getAttribute("has-peg") == "false") {
@@ -227,6 +230,8 @@ class PegSolitare {
 		this.removePeg(secondPegRow, secondPegCol);
 
 		this.selectedPeg = null;
+
+		this.isGameOver();
 	}
 
 	getMiddleAmount(a, b) {
@@ -252,5 +257,62 @@ class PegSolitare {
 		let img = this.board[row][col];
 		img.src = "empty.png";
 		img.setAttribute("has-peg", false);
+	}
+
+	/**
+	 * checks if the game is over.
+	 * also updates the possibleMoves text
+	 */
+	isGameOver() {
+		let totalPossibleMoves = 0;
+		for (let row = 0; row < this.board.length; row++) {
+			for (let col = 0; col < this.board[0].length; col++) {
+				totalPossibleMoves += this.countMoves(row, col);
+			}
+		}
+
+		document.getElementById("possible-moves").innerHTML = "possibleMoves: " + totalPossibleMoves;
+
+		if (totalPossibleMoves == 0) {
+			document.getElementById("possible-moves").innerHTML = "you";
+		}
+	}
+
+	/**
+	 * counts the number of moves this piece can make
+	 * @param {*} row 
+	 * @param {*} col 
+	 */
+	countMoves(row, col) {
+		row = parseInt(row);
+		col = parseInt(col);
+
+		let moves = 0;
+
+		for (let direction of this.direction) {
+			let secondPegRow = row + direction[0];
+			let secondPegCol = col + direction[1];
+			let jumpRow = row + (direction[0] * 2);
+			let jumpCol = col + (direction[1] * 2);
+
+			//check if the second "to-be-jumped-over" peg exists
+			if (this.isValidCoordinate(secondPegRow, secondPegCol)) {
+				let secondPeg = this.board[secondPegRow][secondPegCol];
+				if (secondPeg.getAttribute("has-peg") == "false") {
+					continue;
+				}
+
+				//check if valid target
+				if (this.isValidCoordinate(jumpRow, jumpCol)) {
+					let targetSquare = this.board[jumpRow][jumpCol];
+					if (targetSquare.getAttribute("has-peg") == "false") {
+						moves++;
+					}
+				}
+			}
+		}
+
+		return moves;
+
 	}
 }
