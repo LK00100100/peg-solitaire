@@ -30,10 +30,11 @@ class PegSolitare {
 		this.resetGame();
 	}
 
-	resetGame(){
+	resetGame() {
 		this.selectedPeg = null;
 		this.validMoves = [];
 
+		this.clearBoard();
 		this.placePegs();
 		this.isGameOver();
 	}
@@ -67,15 +68,25 @@ class PegSolitare {
 		}
 	}
 
+	clearBoard() {
+		let rows = document.getElementsByClassName("square");
+
+		for (let square of rows) {
+			square.src = 'empty.png';
+			square.setAttribute("has-peg", false);
+		}
+	}
+
+
 	placePegs() {
 		let rows = document.getElementsByClassName("square");
 
 		for (let square of rows) {
-			let x = square.getAttribute("row");
-			let y = square.getAttribute("col");
+			let row = square.getAttribute("row");
+			let col = square.getAttribute("col");
 
 			//half a square (down the diagonal triangle)
-			if (y < (x + 1)) {
+			if (col < (row + 1)) {
 				square.src = 'peg.png';
 				square.setAttribute("has-peg", true);
 			}
@@ -297,7 +308,7 @@ class PegSolitare {
 		row = parseInt(row);
 		col = parseInt(col);
 
-		if(this.board[row][col].getAttribute("has-peg") == "false")
+		if (this.board[row][col].getAttribute("has-peg") == "false")
 			return 0;
 
 		let moves = 0;
