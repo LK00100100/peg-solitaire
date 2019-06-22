@@ -81,7 +81,7 @@ class PegSolitare {
 		let hasPeg = img.getAttribute("has-peg");
 
 		if (this.selectedPeg == null) {
-			if (hasPeg == false)
+			if (hasPeg == "false")
 				return;
 
 			this.selectedPeg = img;
@@ -99,6 +99,14 @@ class PegSolitare {
 				this.toggleHighlightMoves(x, y, false);
 				return;
 			}
+
+			//new peg selected. switch selected.
+			this.selectedPeg.src = "peg.png";
+			this.toggleHighlightMoves(this.selectedPeg.getAttribute("row"), this.selectedPeg.getAttribute("col"), false);
+
+			this.selectedPeg = img;
+			this.selectedPeg.src = "peg-selected.png";
+			this.toggleHighlightMoves(this.selectedPeg.getAttribute("row"), this.selectedPeg.getAttribute("col"), true);
 		}
 	}
 
@@ -109,6 +117,8 @@ class PegSolitare {
 	 * @param {*} highlight true if you want highlight.
 	 */
 	toggleHighlightMoves(row, col, highlight) {
+		row = parseInt(row);
+		col = parseInt(col);
 
 		for (let direction of this.direction) {
 			let secondPegRow = row + direction[0];
